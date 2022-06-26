@@ -1,32 +1,44 @@
--- global libraries
 lovesize = require "lib.lovesize"
+lovebpm = require "lib.lovebpm"
 xml = require "lib.xml"
 
--- game libraries
 Sprite = require "game.sprite"
+_c = require "game.cache"
 paths = require "game.paths"
 
--- game objects
-local spr
+local music
 
--- love callbacks
+local title = require "game.states.title"
+
+local curState
+
+function callState(func, ...)
+    if curState[func] ~= nil then curState[func](...) end
+end
+
+function switchState(state)
+    curState = state
+    _c.clear()
+    callState("enter")
+end
+
 function love.load()
     lovesize.set(love.graphics.getDimensions())
-
-    spr = paths.sprite(-115, -100, "logoBumpin")
-    spr:addByPrefix("bump", "logo bumpin", 24, false)
-    spr:play("bump")
+    music = lovebpm.newTrack():load(paths.musicPath("freakyMenu")):setBPM(102)
+                :setLooping(true)
+    switchState(title)
+    music:play()
 end
 
 function love.resize(width, height) lovesize.resize(width, height) end
 
 function love.update(dt)
-    spr:update(dt)
-    if love.keyboard.isDown("space") then spr:play("bump", true) end
+    music:update(dt)
+    callState("update", dt)
 end
 
 function love.draw()
     lovesize.begin()
-    spr:draw()
+    callState("draw")
     lovesize.finish()
 end
