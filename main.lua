@@ -6,32 +6,24 @@ xml = require "lib.xml"
 Sprite = require "game.sprite"
 paths = require "game.paths"
 
-function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k, v in pairs(o) do
-            if type(k) ~= 'number' then k = '"' .. k .. '"' end
-            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
-    end
-end
-
-
+-- game objects
 local spr
+
 -- love callbacks
 function love.load()
     lovesize.set(love.graphics.getDimensions())
-    spr = paths.sprite(0, 0, "logoBumpin")
-    spr:addByPrefix("bump", "logo bumpin", 24, true)
+
+    spr = paths.sprite(-115, -100, "logoBumpin")
+    spr:addByPrefix("bump", "logo bumpin", 24, false)
     spr:play("bump")
 end
 
 function love.resize(width, height) lovesize.resize(width, height) end
 
-function love.update(dt) spr:update(dt) end
+function love.update(dt)
+    spr:update(dt)
+    if love.keyboard.isDown("space") then spr:play("bump", true) end
+end
 
 function love.draw()
     lovesize.begin()

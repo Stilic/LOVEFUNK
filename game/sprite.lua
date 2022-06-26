@@ -76,15 +76,15 @@ function Sprite:addByPrefix(name, prefix, framerate, loop)
 end
 
 function Sprite:play(anim, force)
+    if force then
+        self.time = 1
+        self.finished = false
+    end
+
     if not self.curAnim or anim ~= self.curAnim.name then
         self.curAnim = self.frames[anim]
         self.curName = anim
         self.finished = false
-        self.paused = false
-    elseif self.curAnim and force then
-        self.time = 1
-        self.finished = false
-        self.paused = false
     end
 
     return self
@@ -123,26 +123,31 @@ function Sprite:draw()
     if self.curAnim then
         local anim = self.frames[self.curName]
         local spriteNum = math.floor(self.time)
-
         local data = self.xmlData[anim.prefix][spriteNum]
-        local width
-        local height
+
+        local ox
+        local oy
+
+        local mult = 2.5 / 5
 
         if data.offset.width == 0 then
-            width = math.floor(data.width / 2)
+            ox = math.floor(data.width / 2 - data.width * mult)
         else
-            width = math.floor(data.offset.width / 2) + data.offset.x
+            ox = math.floor(data.offset.width / 2 - data.offset.width * mult) +
+                     data.offset.x
         end
         if data.offset.height == 0 then
-            height = math.floor(data.height / 2)
+            oy = math.floor(data.height / 2 - data.height * mult)
         else
-            height = math.floor(data.offset.height / 2) + data.offset.y
+            oy =
+                math.floor(data.offset.height / 2 - data.offset.height * mult) +
+                    data.offset.y
         end
 
         love.graphics.draw(self.image, anim.quads[spriteNum], self.x, self.y,
                            self.orientation, self.sizeX, self.sizeY,
-                           width + self.offsetX, height + self.offsetY,
-                           self.shearX, self.shearY)
+                           ox + self.offsetX, oy + self.offsetY, self.shearX,
+                           self.shearY)
     end
 end
 
