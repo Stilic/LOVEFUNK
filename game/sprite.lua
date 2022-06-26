@@ -2,6 +2,32 @@ local Object = require "lib.classic"
 
 local Sprite = Object:extend()
 
+local function addAnim(self, name, prefix, indices, framerate, loop)
+    if framerate == nil then framerate = 30 end
+    if loop == nil then loop = true end
+
+    local anim = {
+        prefix = prefix,
+        framerate = framerate,
+        loop = loop,
+        frames = {}
+    }
+    local add = function(f)
+        table.insert(anim.frames, {
+            quad = love.graphics.newQuad(f.x, f.y, f.width, f.height,
+                                         self.width, self.height),
+            data = f
+        })
+    end
+    if indices == nil then
+        for _, f in ipairs(self.xmlData[prefix]) do add(f) end
+    else
+        for _, i in ipairs(indices) do add(self.xmlData[prefix][i]) end
+    end
+
+    self.frames[name] = anim
+end
+
 function Sprite:new(x, y)
     self.x = x or 0
     self.y = y or 0
@@ -56,22 +82,12 @@ function Sprite:load(image, desc)
 end
 
 function Sprite:addByPrefix(name, prefix, framerate, loop)
-    if framerate == nil then framerate = 30 end
-    if loop == nil then loop = true end
+    addAnim(self, name, prefix, nil, framerate, loop)
+    return self
+end
 
-    local anim = {
-        prefix = prefix,
-        framerate = framerate,
-        loop = loop,
-        quads = {}
-    }
-    for _, f in ipairs(self.xmlData[prefix]) do
-        table.insert(anim.quads, love.graphics
-                         .newQuad(f.x, f.y, f.width, f.height, self.width,
-                                  self.height))
-    end
-    self.frames[name] = anim
-
+function Sprite:addByIndices(name, prefix, indices, framerate, loop)
+    addAnim(self, name, prefix, indices, framerate, loop)
     return self
 end
 
@@ -108,11 +124,11 @@ end
 function Sprite:update(dt)
     if self.curAnim and not self.finished and not self.paused then
         self.time = self.time + self.curAnim.framerate * dt
-        if self.time > #self.curAnim.quads then
+        if self.time > #self.curAnim.frames then
             if self.curAnim.loop then
                 self.time = 1
             else
-                self.time = #self.curAnim.quads
+                self.time = #self.curAnim.frames
                 self.finished = true
             end
         end
@@ -121,9 +137,8 @@ end
 
 function Sprite:draw()
     if self.curAnim then
-        local anim = self.frames[self.curName]
         local spriteNum = math.floor(self.time)
-        local data = self.xmlData[anim.prefix][spriteNum]
+        local data = self.curAnim.frames[spriteNum].data
 
         local ox
         local oy
@@ -144,10 +159,10 @@ function Sprite:draw()
                     data.offset.y
         end
 
-        love.graphics.draw(self.image, anim.quads[spriteNum], self.x, self.y,
-                           self.orientation, self.sizeX, self.sizeY,
-                           ox + self.offsetX, oy + self.offsetY, self.shearX,
-                           self.shearY)
+        love.graphics.draw(self.image, self.curAnim.frames[spriteNum].quad,
+                           self.x, self.y, self.orientation, self.sizeX,
+                           self.sizeY, ox + self.offsetX, oy + self.offsetY,
+                           self.shearX, self.shearY)
     end
 end
 

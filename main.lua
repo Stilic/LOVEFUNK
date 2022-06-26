@@ -26,6 +26,7 @@ function love.load()
     lovesize.set(love.graphics.getDimensions())
     music = lovebpm.newTrack():load(paths.musicPath("freakyMenu")):setBPM(102)
                 :setLooping(true)
+                :on("beat", function(n) callState("beat", n) end)
     switchState(title)
     music:play()
 end

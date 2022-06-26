@@ -2,11 +2,16 @@ local title = {}
 
 local gf
 local logo
+local danceRight = false
 
 function title.enter()
     gf = paths.sprite(512, 40, "gfDanceTitle")
-    gf:addByPrefix("dance", "gfDance", 24)
-    gf:play("dance")
+    gf:addByIndices("danceLeft", "gfDance",
+                    {30, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, 24)
+    gf:addByIndices("danceRight", "gfDance", {
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
+    }, 24)
+    gf:play("danceLeft")
     _c.add(gf)
 
     logo = paths.sprite(-115, -100, "logoBumpin")
@@ -23,6 +28,17 @@ end
 function title.draw()
     gf:draw()
     logo:draw()
+end
+
+function title.beat()
+    logo:play("bump", true)
+
+    danceRight = not danceRight
+    if danceRight then
+        gf:play("danceRight")
+    else
+        gf:play("danceLeft")
+    end
 end
 
 return title
