@@ -1,2 +1,3 @@
 # LOVEFUNK
-A fan port of Friday Night Funkin to LÖVE.
+
+A fan port of Friday Night Funkin' to LÖVE.
