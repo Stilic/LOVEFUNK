@@ -7,7 +7,7 @@ end
 
 function cache.newImage(path)
     local image = cache.images[path]
-    if image == nil then
+    if not image then
         image = love.graphics.newImage(path)
         cache.images[path] = image
     end
@@ -16,7 +16,7 @@ end
 
 function cache.clear()
     for _, o in ipairs(cache.objects) do
-        if o.release ~= nil then o:release() end
+        if o.release then o:release() end
     end
     cache.objects = {}
     for _, i in ipairs(cache.images) do i:release() end
