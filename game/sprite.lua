@@ -19,7 +19,7 @@ local function addAnim(self, name, prefix, indices, framerate, loop)
             data = f
         })
     end
-    if indices == nil then
+    if not indices then
         for _, f in ipairs(self.xmlData[prefix]) do add(f) end
     else
         for _, i in ipairs(indices) do add(self.xmlData[prefix][i]) end
@@ -92,14 +92,16 @@ function Sprite:addByIndices(name, prefix, indices, framerate, loop)
 end
 
 function Sprite:play(anim, force)
-    if force then
-        self.time = 1
-        self.finished = false
-    end
+    local resetTimer = false
 
     if not self.curAnim or anim ~= self.curAnim.name then
         self.curAnim = self.frames[anim]
         self.curName = anim
+        resetTimer = true
+    end
+
+    if force or resetTimer then
+        self.time = 1
         self.finished = false
     end
 
@@ -108,6 +110,8 @@ end
 
 function Sprite:stop()
     self.curAnim = nil
+    self.timer = 1
+    self.finished = true
     return self
 end
 
