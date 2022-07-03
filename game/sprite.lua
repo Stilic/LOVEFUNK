@@ -22,7 +22,11 @@ local function addAnim(self, name, prefix, indices, framerate, loop)
     if not indices then
         for _, f in ipairs(self.xmlData[prefix]) do add(f) end
     else
-        for _, i in ipairs(indices) do add(self.xmlData[prefix][i]) end
+        for _, i in ipairs(indices) do
+            local f = self.xmlData[prefix][i + 1]
+            if not f then f = self.xmlData[prefix][i - 1] end
+            add(f)
+        end
     end
 
     self.frames[name] = anim

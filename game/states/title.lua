@@ -7,10 +7,11 @@ local danceRight = false
 function title.enter()
     gf = paths.sprite(512, 40, "gfDanceTitle")
     gf:addByIndices("danceLeft", "gfDance",
-                    {30, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, 24)
+                    {30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, 24,
+                    false)
     gf:addByIndices("danceRight", "gfDance", {
         15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
-    }, 24)
+    }, 24, false)
     gf:play("danceLeft")
     _c.add(gf)
 
