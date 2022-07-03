@@ -14,14 +14,12 @@ local function addAnim(self, name, prefix, indices, framerate, loop)
         frames = {}
     }
 
-    local index = 0
     local add = function(f)
-        index = index + 1
-        anim.frames[index] = {
+        table.insert(anim.frames, {
             quad = love.graphics.newQuad(f.x, f.y, f.width, f.height,
                                          self.width, self.height),
             data = f
-        }
+        })
     end
 
     if not indices then
@@ -34,7 +32,8 @@ local function addAnim(self, name, prefix, indices, framerate, loop)
         end
     end
 
-    self.frames[name] = anim
+    self.anims[name] = anim
+    self.lastAnimAdded = anim
 end
 
 function Sprite:new(x, y)
@@ -44,15 +43,13 @@ function Sprite:new(x, y)
     self.width = 0
     self.height = 0
     self.orientation = 0
+    self.alpha = 1
     self.sizeX = 1
     self.sizeY = 1
     self.offsetX = 0
     self.offsetY = 0
     self.shearX = 0
     self.shearY = 0
-
-    self.xmlData = {}
-    self.frames = {}
 
     self.time = 1
     self.finished = true
@@ -65,27 +62,29 @@ function Sprite:load(image, desc)
     self.height = image:getHeight()
 
     self.xmlData = {}
-    self.frames = {}
+    self.anims = {}
 
     local data = parseXml(desc)
-    local index = 0
     for _, e in ipairs(data) do
         if e.tag == "SubTexture" then
-            local name = string.sub(e.attr["name"], 1, -5)
-            if not self.xmlData[name] then self.xmlData[name] = {} end
-            index = index + 1
-            self.xmlData[name][index] = {
+            local d = {
                 x = tonumber(e.attr["x"]),
                 y = tonumber(e.attr["y"]),
                 width = tonumber(e.attr["width"]),
-                height = tonumber(e.attr["height"]),
-                offset = {
-                    x = tonumber(e.attr["frameX"]) or 0,
-                    y = tonumber(e.attr["frameY"]) or 0,
-                    width = tonumber(e.attr["frameWidth"]) or 0,
-                    height = tonumber(e.attr["frameHeight"]) or 0
-                }
+                height = tonumber(e.attr["height"])
             }
+
+            local ox = tonumber(e.attr["frameX"]) or 0
+            local oy = tonumber(e.attr["frameY"]) or 0
+            local ow = tonumber(e.attr["frameWidth"]) or 0
+            local oh = tonumber(e.attr["frameHeight"]) or 0
+            if ox ~= 0 or oy ~= 0 or ow ~= 0 or oh ~= 0 then
+                d.offset = {x = ox, y = oy, width = ow, height = oh}
+            end
+
+            local name = string.sub(e.attr["name"], 1, -5)
+            if not self.xmlData[name] then self.xmlData[name] = {} end
+            table.insert(self.xmlData[name], d)
         end
     end
 
@@ -106,7 +105,7 @@ function Sprite:play(anim, force)
     local resetTimer = false
 
     if not self.curAnim or anim ~= self.curAnim.name then
-        self.curAnim = self.frames[anim]
+        self.curAnim = self.anims[anim]
         self.curName = anim
         resetTimer = true
     end
@@ -151,34 +150,52 @@ function Sprite:update(dt)
 end
 
 function Sprite:draw()
+    if self.alpha <= 0 then return end
+
+    local frame
     if self.curAnim then
-        local frame = self.curAnim.frames[math.floor(self.time)]
+        frame = self.curAnim.frames[math.floor(self.time)]
+    else
+        frame = self.lastAnimAdded.frames[1]
+    end
 
-        local ox
-        local oy
+    local ox = 0
+    local oy = 0
 
+    if frame.data.offset then
         local mult = 2.5 / 5
 
-        if frame.data.offset.width == 0 then
+        if frame.data.offset and frame.data.offset.width == 0 then
             ox = math.floor(frame.data.width / 2 - frame.data.width * mult)
         else
             ox = math.floor(frame.data.offset.width / 2 -
                                 frame.data.offset.width * mult) +
                      frame.data.offset.x
         end
-        if frame.data.offset.height == 0 then
+
+        if frame.data.offset and frame.data.offset.height == 0 then
             oy = math.floor(frame.data.height / 2 - frame.data.height * mult)
         else
             oy = math.floor(frame.data.offset.height / 2 -
                                 frame.data.offset.height * mult) +
                      frame.data.offset.y
         end
-
-        love.graphics.draw(self.image, frame.quad, self.x, self.y,
-                           self.orientation, self.sizeX, self.sizeY,
-                           ox + self.offsetX, oy + self.offsetY, self.shearX,
-                           self.shearY)
     end
+
+    local setColor = self.color or self.alpha > 0
+    if setColor then
+        local color
+        if self.color then
+            color = self.color
+        else
+            color = {255, 255, 255}
+        end
+        love.graphics.setColor(color[1], color[2], color[3], self.alpha)
+    end
+    love.graphics.draw(self.image, frame.quad, self.x, self.y, self.orientation,
+                       self.sizeX, self.sizeY, ox + self.offsetX,
+                       oy + self.offsetY, self.shearX, self.shearY)
+    if setColor then love.graphics.setColor(255, 255, 255) end
 end
 
 return Sprite

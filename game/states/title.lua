@@ -2,6 +2,8 @@ local title = {}
 
 local gf
 local logo
+local start
+
 local danceRight = false
 
 function title.enter()
@@ -15,19 +17,26 @@ function title.enter()
     _c.add(gf)
 
     logo = paths.sprite(-115, -100, "logoBumpin")
-    logo:addByPrefix("bump", "logo bumpin", 24)
-    logo:play("bump")
+    logo:addByPrefix("bump", "logo bumpin", 24, false)
     _c.add(logo)
+
+    start = paths.sprite(100, 576, "titleEnter")
+    start:addByPrefix("idle", "Press Enter to Begin", 24)
+    start:addByPrefix("press", "ENTER PRESSED", 24)
+    start:play("idle")
+    _c.add(start)
 end
 
 function title.update(dt)
     gf:update(dt)
     logo:update(dt)
+    start:update(dt)
 end
 
 function title.draw()
     gf:draw()
     logo:draw()
+    start:draw()
 end
 
 function title.beat()

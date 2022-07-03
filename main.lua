@@ -4,6 +4,19 @@ lovebpm = require "lib.lovebpm"
 _c = require "game.cache"
 paths = require "game.paths"
 
+function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k, v in pairs(o) do
+            if type(k) ~= 'number' then k = '"' .. k .. '"' end
+            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
+
 local music
 
 local title = require "game.states.title"
@@ -19,7 +32,6 @@ end
 
 function love.load()
     lovesize.set(love.graphics.getDimensions())
-
     music = lovebpm.newTrack():load(paths.musicPath("freakyMenu")):setBPM(102)
                 :setLooping(true)
                 :on("beat", function(n) callState("beat", n) end)
@@ -32,7 +44,6 @@ function love.resize(width, height) lovesize.resize(width, height) end
 
 function love.update(dt)
     dt = math.min(dt, 1 / 60)
-
     music:update(dt)
     callState("update", dt)
 end
