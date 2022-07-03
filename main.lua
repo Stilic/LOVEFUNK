@@ -1,8 +1,6 @@
 lovesize = require "lib.lovesize"
 lovebpm = require "lib.lovebpm"
-xml = require "lib.xml"
 
-Sprite = require "game.sprite"
 _c = require "game.cache"
 paths = require "game.paths"
 
@@ -13,7 +11,7 @@ local title = require "game.states.title"
 local curState
 
 function callState(func, ...)
-    if curState[func] ~= nil then curState[func](...) end
+    if curState[func] then curState[func](...) end
 end
 
 function switchState(state)
@@ -34,6 +32,7 @@ end
 function love.resize(width, height) lovesize.resize(width, height) end
 
 function love.update(dt)
+    dt = math.min(dt, 1 / 60)
     music:update(dt)
     callState("update", dt)
 end

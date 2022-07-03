@@ -12,7 +12,6 @@ function title.enter()
     gf:addByIndices("danceRight", "gfDance", {
         15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29
     }, 24, false)
-    gf:play("danceLeft")
     _c.add(gf)
 
     logo = paths.sprite(-115, -100, "logoBumpin")

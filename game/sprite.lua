@@ -1,4 +1,5 @@
 local Object = require "lib.classic"
+local parseXml = (require "lib.xml").parse
 
 local Sprite = Object:extend()
 
@@ -12,13 +13,17 @@ local function addAnim(self, name, prefix, indices, framerate, loop)
         loop = loop,
         frames = {}
     }
+
+    local index = 0
     local add = function(f)
-        table.insert(anim.frames, {
+        index = index + 1
+        anim.frames[index] = {
             quad = love.graphics.newQuad(f.x, f.y, f.width, f.height,
                                          self.width, self.height),
             data = f
-        })
+        }
     end
+
     if not indices then
         for _, f in ipairs(self.xmlData[prefix]) do add(f) end
     else
@@ -62,12 +67,14 @@ function Sprite:load(image, desc)
     self.xmlData = {}
     self.frames = {}
 
-    local data = xml.parse(desc)
+    local data = parseXml(desc)
+    local index = 0
     for _, e in ipairs(data) do
         if e.tag == "SubTexture" then
             local name = string.sub(e.attr["name"], 1, -5)
             if not self.xmlData[name] then self.xmlData[name] = {} end
-            table.insert(self.xmlData[name], {
+            index = index + 1
+            self.xmlData[name][index] = {
                 x = tonumber(e.attr["x"]),
                 y = tonumber(e.attr["y"]),
                 width = tonumber(e.attr["width"]),
@@ -78,7 +85,7 @@ function Sprite:load(image, desc)
                     width = tonumber(e.attr["frameWidth"]) or 0,
                     height = tonumber(e.attr["frameHeight"]) or 0
                 }
-            })
+            }
         end
     end
 
@@ -145,32 +152,32 @@ end
 
 function Sprite:draw()
     if self.curAnim then
-        local spriteNum = math.floor(self.time)
-        local data = self.curAnim.frames[spriteNum].data
+        local frame = self.curAnim.frames[math.floor(self.time)]
 
         local ox
         local oy
 
         local mult = 2.5 / 5
 
-        if data.offset.width == 0 then
-            ox = math.floor(data.width / 2 - data.width * mult)
+        if frame.data.offset.width == 0 then
+            ox = math.floor(frame.data.width / 2 - frame.data.width * mult)
         else
-            ox = math.floor(data.offset.width / 2 - data.offset.width * mult) +
-                     data.offset.x
+            ox = math.floor(frame.data.offset.width / 2 -
+                                frame.data.offset.width * mult) +
+                     frame.data.offset.x
         end
-        if data.offset.height == 0 then
-            oy = math.floor(data.height / 2 - data.height * mult)
+        if frame.data.offset.height == 0 then
+            oy = math.floor(frame.data.height / 2 - frame.data.height * mult)
         else
-            oy =
-                math.floor(data.offset.height / 2 - data.offset.height * mult) +
-                    data.offset.y
+            oy = math.floor(frame.data.offset.height / 2 -
+                                frame.data.offset.height * mult) +
+                     frame.data.offset.y
         end
 
-        love.graphics.draw(self.image, self.curAnim.frames[spriteNum].quad,
-                           self.x, self.y, self.orientation, self.sizeX,
-                           self.sizeY, ox + self.offsetX, oy + self.offsetY,
-                           self.shearX, self.shearY)
+        love.graphics.draw(self.image, frame.quad, self.x, self.y,
+                           self.orientation, self.sizeX, self.sizeY,
+                           ox + self.offsetX, oy + self.offsetY, self.shearX,
+                           self.shearY)
     end
 end
 
