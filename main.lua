@@ -4,22 +4,23 @@ lovebpm = require "lib.lovebpm"
 _c = require "game.cache"
 paths = require "game.paths"
 
-function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k, v in pairs(o) do
-            if type(k) ~= 'number' then k = '"' .. k .. '"' end
-            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
-    end
-end
+-- function dump(o)
+--     if type(o) == 'table' then
+--         local s = '{ '
+--         for k, v in pairs(o) do
+--             if type(k) ~= 'number' then k = '"' .. k .. '"' end
+--             s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+--         end
+--         return s .. '} '
+--     else
+--         return tostring(o)
+--     end
+-- end
 
 local music
 
-local title = require "game.states.title"
+-- local title = require "game.states.title"
+local playState = require "game.states.play"
 local curState
 
 function callState(func, ...) if curState[func] then curState[func](...) end end
@@ -36,8 +37,8 @@ function love.load()
                 :setLooping(true)
                 :on("beat", function(n) callState("beat", n) end)
 
-    switchState(title)
-    music:play()
+    switchState(playState)
+    -- music:play()
 end
 
 function love.resize(width, height) lovesize.resize(width, height) end

@@ -43,11 +43,14 @@ function Sprite:new(x, y)
     self.width = 0
     self.height = 0
     self.orientation = 0
+    self.color = {255, 255, 255}
     self.alpha = 1
     self.sizeX = 1
     self.sizeY = 1
+    self.animOffsets = {}
     self.offsetX = 0
     self.offsetY = 0
+    self.centerOffsets = false
     self.shearX = 0
     self.shearY = 0
 
@@ -101,10 +104,19 @@ function Sprite:addByIndices(name, prefix, indices, framerate, loop)
     return self
 end
 
+function Sprite:addOffset(anim, x, y)
+    x = x or 0
+    y = y or 0
+
+    self.animOffsets[anim] = {x, y}
+
+    return self
+end
+
 function Sprite:play(anim, force)
     local resetTimer = false
 
-    if not self.curAnim or anim ~= self.curAnim.name then
+    if not self.curAnim or anim ~= self.curName then
         self.curAnim = self.anims[anim]
         self.curName = anim
         resetTimer = true
@@ -159,8 +171,8 @@ function Sprite:draw()
         frame = self.lastAnimAdded.frames[1]
     end
 
-    local ox = 0
-    local oy = 0
+    local x, y = self.x, self.y
+    local ox, oy = 0, 0
 
     if frame.data.offset then
         local mult = 2.5 / 5
@@ -182,20 +194,42 @@ function Sprite:draw()
         end
     end
 
-    local setColor = self.color or self.alpha > 0
-    if setColor then
-        local color
-        if self.color then
-            color = self.color
-        else
-            color = {255, 255, 255}
-        end
-        love.graphics.setColor(color[1], color[2], color[3], self.alpha)
+    -- cringe asf hack
+    if self.centerOffsets then
+        local mult = 0.5 / 3
+
+        ox = ox + (frame.data.width - self.width / (self.width / 2) - ox) * mult
+        oy = oy + (frame.data.height - self.height / (self.height / 2) - oy) *
+                 mult
+
+        mult = mult * 8
+        x = x * (mult / 1.325)
+        y = y * mult
     end
-    love.graphics.draw(self.image, frame.quad, self.x, self.y, self.orientation,
+
+    local customOffset = self.animOffsets[self.curName]
+    if customOffset then
+        ox = ox + customOffset[1]
+        oy = oy + customOffset[2]
+    end
+
+    local oldColor
+    local setColor = (self.color[1] ~= 255 or self.color[2] ~= 255 or
+                         self.color[3] ~= 255) or
+                         (self.alpha > 0 and self.alpha > 1)
+    if setColor then
+        r, g, b = love.graphics.getColor()
+        oldColor = {r, g, b}
+
+        love.graphics.setColor(self.color[1], self.color[2], self.color[3],
+                               self.alpha)
+    end
+    love.graphics.draw(self.image, frame.quad, x, y, self.orientation,
                        self.sizeX, self.sizeY, ox + self.offsetX,
                        oy + self.offsetY, self.shearX, self.shearY)
-    if setColor then love.graphics.setColor(255, 255, 255) end
+    if setColor then
+        love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3])
+    end
 end
 
 return Sprite
