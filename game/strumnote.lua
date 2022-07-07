@@ -16,17 +16,19 @@ function StrumNote:new(x, y, data, player)
     self:addByPrefix("pressed", dir .. " press", 24, false)
     self:addByPrefix("confirm", dir .. " confirm", 24, false)
 
-    local ox, oy = -6, 23
+    local ox, oy = 32, 32
     if data == 0 then
-        ox = ox + 5
-        oy = oy - 3
-    elseif data == 1 then
-        ox = ox + 5
-        ox = ox + 7
-    elseif data == 2 then
-        ox = ox + 12
-    elseif data == 3 then
         ox = ox + 3
+        oy = oy + 3
+    elseif data == 1 then
+        ox = ox + 10
+        oy = oy + 9
+    elseif data == 2 then
+        ox = ox + 7
+        oy = oy + 6
+    elseif data == 3 then
+        ox = ox + 2
+        oy = oy + 5
     end
     self:addOffset("confirm", ox, oy)
 
@@ -42,9 +44,9 @@ function StrumNote:postAddedToGroup()
     return self
 end
 
-function StrumNote:play(anim, force)
-    StrumNote.super.play(self, anim, force)
-    self.centerOffsets = anim == "confirm"
-end
+-- function StrumNote:play(anim, force)
+--     StrumNote.super.play(self, anim, force)
+--     self.centerOffsets = anim == "confirm"
+-- end
 
 return StrumNote

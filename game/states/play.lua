@@ -1,3 +1,4 @@
+local Note = require "game.note"
 local StrumNote = require "game.strumnote"
 local Group = require "game.group"
 
@@ -9,14 +10,15 @@ function play.enter()
     playerStrums = Group()
     _c.add(playerStrums)
     for i = 1, 4, 1 do
-        playerStrums:add(StrumNote(42, 50, i - 1, 0):postAddedToGroup())
+        playerStrums:add(StrumNote(42, 40, i - 1, 0):postAddedToGroup())
     end
 end
 
-function play.update(dt) playerStrums:call("update", dt)
-if love.keyboard.isDown("space") then
-    playerStrums:call("play", "confirm", true)
-end
+function play.update(dt)
+    playerStrums:call("update", dt)
+    for i, s in ipairs(playerStrums.members) do
+        if love.keyboard.isDown(Note.directions[i]) then s:play("confirm") else s:play("static") end
+    end
 end
 
 function play.draw() playerStrums:call("draw") end

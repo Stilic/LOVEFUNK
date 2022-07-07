@@ -50,7 +50,6 @@ function Sprite:new(x, y)
     self.animOffsets = {}
     self.offsetX = 0
     self.offsetY = 0
-    self.centerOffsets = false
     self.shearX = 0
     self.shearY = 0
 
@@ -192,19 +191,6 @@ function Sprite:draw()
                                 frame.data.offset.height * mult) +
                      frame.data.offset.y
         end
-    end
-
-    -- cringe asf hack
-    if self.centerOffsets then
-        local mult = 0.5 / 3
-
-        ox = ox + (frame.data.width - self.width / (self.width / 2) - ox) * mult
-        oy = oy + (frame.data.height - self.height / (self.height / 2) - oy) *
-                 mult
-
-        mult = mult * 8
-        x = x * (mult / 1.325)
-        y = y * mult
     end
 
     local customOffset = self.animOffsets[self.curName]
