@@ -66,7 +66,7 @@ function lovebpm.detectBPM(filename, opts)
   end
 
   -- Get track duration and init results table
-  local dur = data:getDuration("seconds")
+  local dur = data:getDuration()
   local results = {}
 
   -- Get maximum allowed BPM

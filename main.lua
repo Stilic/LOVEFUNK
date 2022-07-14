@@ -17,10 +17,21 @@ paths = require "game.paths"
 --     end
 -- end
 
-local music
+input = (require "lib.baton").new({
+    controls = {
+        left = {"key:left", "key:a", "axis:leftx-", "button:dpleft"},
+        right = {"key:right", "key:d", "axis:leftx+", "button:dpright"},
+        up = {"key:up", "key:w", "axis:lefty-", "button:dpup"},
+        down = {"key:down", "key:s", "axis:lefty+", "button:dpdown"},
+        action = {"key:space", "button:x"},
+        accept = {"key:return", "button:start", "button:a"},
+        back = {"key:escape", "key:backspace", "button:b"}
+    },
+    joystick = love.joystick.getJoysticks()[1]
+})
 
 -- local title = require "game.states.title"
-local playState = require "game.states.play"
+play = require "game.states.play"
 local curState
 
 function callState(func, ...) if curState[func] then curState[func](...) end end
@@ -37,7 +48,7 @@ function love.load()
                 :setLooping(true)
                 :on("beat", function(n) callState("beat", n) end)
 
-    switchState(playState)
+    switchState(play)
     -- music:play()
 end
 
@@ -45,7 +56,8 @@ function love.resize(width, height) lovesize.resize(width, height) end
 
 function love.update(dt)
     dt = math.min(dt, 1 / 60)
-    music:update(dt)
+    music:update()
+    input:update()
     callState("update", dt)
 end
 

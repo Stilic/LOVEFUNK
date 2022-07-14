@@ -1,3 +1,4 @@
+local parseJson = (require "lib.json").decode
 local Sprite = require "game.sprite"
 
 local paths = {}
@@ -12,6 +13,10 @@ end
 function paths.image(key)
     return _c.newImage(paths.get("images/" .. key .. ".png"))
 end
+
+function paths.json(key) return paths.file("data/" .. key .. ".json") end
+
+function paths.parseJson(key) return parseJson(paths.json(key)) end
 
 function paths.xml(key) return paths.file(key .. ".xml") end
 

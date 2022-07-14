@@ -1,7 +1,6 @@
-local Sprite = require "game.sprite"
 local Note = require "game.note"
 
-local StrumNote = Sprite:extend()
+local StrumNote = (require "game.sprite"):extend()
 
 function StrumNote:new(x, y, data, player)
     StrumNote.super.new(self, x, y)
@@ -21,7 +20,7 @@ function StrumNote:new(x, y, data, player)
         ox = ox + 3
         oy = oy + 3
     elseif data == 1 then
-        ox = ox + 10
+        ox = ox + 9
         oy = oy + 9
     elseif data == 2 then
         ox = ox + 7
@@ -43,10 +42,5 @@ function StrumNote:postAddedToGroup()
     self.x = self.x + (lovesize.getWidth() / 2) * self.player
     return self
 end
-
--- function StrumNote:play(anim, force)
---     StrumNote.super.play(self, anim, force)
---     self.centerOffsets = anim == "confirm"
--- end
 
 return StrumNote
