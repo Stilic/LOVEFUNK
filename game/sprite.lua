@@ -53,6 +53,9 @@ function Sprite:new(x, y)
     self.shearX = 0
     self.shearY = 0
 
+    self.xmlData = {}
+    self.anims = {}
+
     self.time = 1
     self.finished = true
     self.paused = false
