@@ -36,7 +36,8 @@ end
 function play.enter()
     local song = "bopeebo"
     play.song = paths.parseJson(song .. "/" .. song).song
-    -- vocals = paths.music(song .. "/Voices")
+    music:load(paths.soundPath(song .. "/Inst", "songs")):setBPM(play.song.bpm)
+    vocals = paths.sound(song .. "/Voices", true, "stream", "songs")
 
     unspawnNotes = {}
     _c.add(unspawnNotes)
@@ -94,10 +95,13 @@ function play.enter()
 
     opponentStrums = newStrumGroup(0)
     playerStrums = newStrumGroup(1)
+
+    music:play()
+    vocals:play()
 end
 
 function play.update(dt)
-    local time = music:getTime() + 1000
+    local time = music:getTime()
     local oldNote
     for i, n in ipairs(unspawnNotes) do
         local length = #notes
@@ -122,8 +126,6 @@ function play.update(dt)
             end
             daNote.mustPress = n.mustPress
             table.insert(notes, daNote)
-
-            print(daNote.curName)
 
             table.remove(unspawnNotes, i)
         end

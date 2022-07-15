@@ -24,26 +24,21 @@ function paths.sprite(x, y, key)
     return Sprite(x, y):load(paths.image(key), paths.xml("images/" .. key))
 end
 
-function paths.musicPath(key) return paths.get("music/" .. key .. ".ogg") end
-
-function paths.music(key, cache)
-    if cache == nil then cache = true end
-
-    local music = love.audio.newSource(paths.musicPath(key), "stream")
-    if cache then _c.add(music) end
-
-    return music
+function paths.soundPath(key, prefix)
+    return paths.get((prefix or "sounds") .. "/" .. key .. ".ogg")
 end
 
-function paths.soundPath(key) return paths.get("sounds/" .. key .. ".ogg") end
-
-function paths.sound(key, cache)
+function paths.sound(key, cache, mode, prefix)
     if cache == nil then cache = true end
 
-    local sound = love.audio.newSource(paths.soundPath(key), "static")
+    local sound = love.audio.newSource(paths.soundPath(key, prefix), mode or "static")
     if cache then _c.add(sound) end
 
     return sound
 end
+
+function paths.musicPath(key) return paths.soundPath(key, "music") end
+
+function paths.music(key, cache, mode) return paths.sound(key, cache, mode, "music") end
 
 return paths
